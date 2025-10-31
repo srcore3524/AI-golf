@@ -4,8 +4,27 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Mail, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState, FormEvent } from "react";
 
 const Login = () => {
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await login(email, password);
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
       {/* Background decoration */}
@@ -28,7 +47,7 @@ const Login = () => {
           <p className="text-muted-foreground">Sign in to continue your golf journey</p>
         </div>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
             <div className="relative">
@@ -38,6 +57,9 @@ const Login = () => {
                 type="email"
                 placeholder="you@example.com"
                 className="pl-10"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -56,6 +78,9 @@ const Login = () => {
                 type="password"
                 placeholder="••••••••"
                 className="pl-10"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -64,8 +89,9 @@ const Login = () => {
             type="submit"
             className="w-full bg-primary hover:bg-primary-glow text-white font-semibold group"
             size="lg"
+            disabled={isLoading}
           >
-            Sign In
+            {isLoading ? "Signing In..." : "Sign In"}
             <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </form>

@@ -24,7 +24,8 @@ const Onboarding = () => {
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
-      // Navigate to dashboard when complete
+      // Mark onboarding as complete and navigate to dashboard
+      localStorage.setItem("onboardingComplete", "true");
       navigate("/dashboard");
     }
   };

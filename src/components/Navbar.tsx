@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard, User, LogOut } from "lucide-react";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -18,8 +22,8 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo - Golf themed */}
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          <Link
+            to={isAuthenticated ? "/dashboard" : "/"}
             className="flex items-center gap-3 group cursor-pointer"
           >
             <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
@@ -33,7 +37,7 @@ const Navbar = () => {
                 Golf
               </span>
             </div>
-          </button>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
@@ -60,19 +64,53 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons / User Menu */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="hover:text-primary font-medium text-sm" asChild>
-              <a href="/login">Sign In</a>
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="bg-primary hover:bg-primary-glow text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all duration-300"
-              asChild
-            >
-              <a href="/signup">Get Started</a>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hover:text-primary font-medium text-sm gap-2"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hover:text-primary font-medium text-sm gap-2"
+                  onClick={() => navigate("/profile")}
+                >
+                  <User className="w-4 h-4" />
+                  Profile
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="font-medium text-sm gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
+                  onClick={logout}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" className="hover:text-primary font-medium text-sm" asChild>
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="bg-primary hover:bg-primary-glow text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all duration-300"
+                  asChild
+                >
+                  <Link to="/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -92,36 +130,83 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden py-6 border-t border-border animate-fade-in">
             <div className="flex flex-col gap-4">
-              <button 
-                onClick={() => scrollToSection('features')}
-                className="text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-300 py-2"
-              >
-                Features
-              </button>
-              <button 
-                onClick={() => scrollToSection('how-it-works')}
-                className="text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-300 py-2"
-              >
-                How It Works
-              </button>
-              <button 
-                onClick={() => scrollToSection('showcase')}
-                className="text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-300 py-2"
-              >
-                Platform
-              </button>
+              {!isAuthenticated && (
+                <>
+                  <button
+                    onClick={() => scrollToSection('features')}
+                    className="text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-300 py-2"
+                  >
+                    Features
+                  </button>
+                  <button
+                    onClick={() => scrollToSection('how-it-works')}
+                    className="text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-300 py-2"
+                  >
+                    How It Works
+                  </button>
+                  <button
+                    onClick={() => scrollToSection('showcase')}
+                    className="text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-300 py-2"
+                  >
+                    Platform
+                  </button>
+                </>
+              )}
               <div className="flex flex-col gap-2 pt-3 border-t border-border">
-                <Button variant="ghost" size="sm" className="font-medium" asChild>
-                  <a href="/login">Sign In</a>
-                </Button>
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="bg-primary hover:bg-primary-glow text-white font-semibold"
-                  asChild
-                >
-                  <a href="/signup">Get Started</a>
-                </Button>
+                {isAuthenticated ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start gap-2"
+                      onClick={() => {
+                        navigate("/dashboard");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start gap-2"
+                      onClick={() => {
+                        navigate("/profile");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
+                      onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" className="font-medium" asChild>
+                      <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="bg-primary hover:bg-primary-glow text-white font-semibold"
+                      asChild
+                    >
+                      <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
